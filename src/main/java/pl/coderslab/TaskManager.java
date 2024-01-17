@@ -94,7 +94,7 @@ public class TaskManager {
             System.out.println("Nr : Description  Due Date  Important?");
             for (int i = 0; i < tasks.length; i++) {
                 String[] task = tasks[i];
-                System.out.println(i + " : " + task[0].strip() + "\t" + task[1].strip() + "\t" + ConsoleColors.PURPLE + task[2].strip());
+                System.out.println(i + " : " + task[0].strip() + "\t" + task[1].strip() + "\t" + ConsoleColors.PURPLE + task[2].strip() + ConsoleColors.RESET);
             }
             System.out.println();
         }
@@ -140,29 +140,29 @@ public class TaskManager {
     }
 
     private static boolean removeTask(Scanner scanner) {
-        String number = getNumberFromUser(scanner);
-        if (number.equalsIgnoreCase(cancelWord)) {
-            return true;
-        } else if (number.equalsIgnoreCase(exitWord)) {
-            return false;
-        }
-        int taskIndexToRemove = Integer.parseInt(number);
-        String[][] tasksAfterRemoval = new String[tasks.length - 1][];
-        for (int i = 0; i <= taskIndexToRemove; i++) {
-            if (i == taskIndexToRemove) {
-                if (!(taskIndexToRemove == tasks.length - 1)) {
-                    tasksAfterRemoval[i] = tasks[i + 1];
-                }
-            } else {
-                tasksAfterRemoval[i] = tasks[i];
+        if (tasks.length != 0) {
+            String number = getNumberFromUser(scanner);
+            if (number.equalsIgnoreCase(cancelWord)) {
+                return true;
+            } else if (number.equalsIgnoreCase(exitWord)) {
+                return false;
             }
-        }
+            int taskIndexToRemove = Integer.parseInt(number);
+            String[][] tasksAfterRemoval = new String[tasks.length - 1][];
+            String[] taskToRemove = tasks[taskIndexToRemove];
+            int tasksAfterRemovalIndex = 0;
+            for (int i = 0; i < tasks.length; i++) {
+                if (!(tasks[i] == taskToRemove)) {
+                    tasksAfterRemoval[i] = tasks[tasksAfterRemovalIndex];
+                    tasksAfterRemovalIndex++;
+                }
+            }
 
-        for (int i = taskIndexToRemove + 1; i < tasksAfterRemoval.length; i++) {
-            tasksAfterRemoval[i] = tasks[i + 1];
+            tasks = tasksAfterRemoval;
+            System.out.println("Task nr." + number + " successfully removed!");
+            return true;
         }
-        tasks = tasksAfterRemoval;
-        System.out.println("Task nr." + number + " successfully removed!");
+        listTasks();
         return true;
     }
 
@@ -357,7 +357,9 @@ public class TaskManager {
             else {
                 System.out.print("\033\143");
             }
-        } catch (IOException | InterruptedException ex) {}
+        } catch (IOException | InterruptedException ex) {
+            ex.getMessage();
+        }
     }
 }
 
