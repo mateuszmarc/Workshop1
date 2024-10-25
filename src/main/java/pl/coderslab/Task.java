@@ -21,4 +21,8 @@ public class Task {
         String importance = ConsoleColors.PURPLE + important + ConsoleColors.RESET;
         return "%03d : %-20s %-15s %-10s".formatted(number, description, dueDate, importance);
     }
+
+    public String generateCsvData() {
+        return "%s,%s,%s".formatted(description, dueDate, important);
+    }
 }

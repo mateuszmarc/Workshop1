@@ -32,6 +32,8 @@ public class TaskManager {
 
     private List<Task> tasks = new ArrayList<>();
     private final String filename;
+    private boolean toExitProgram = false;
+    private boolean toExitOperation = false;
 
 
     public TaskManager(String filename) {
@@ -40,20 +42,19 @@ public class TaskManager {
 
     public void manageTasks() {
         Scanner scanner = new Scanner(System.in);
-        List<Task> tasks = loadFile(filename);
         String action;
-        boolean toExitProgram = false;
         while (!toExitProgram) {
             action = getActionFromUser(scanner);
             clearConsoleScreen();
             switch (action) {
 //                case "add" -> addTask(scanner);
 //                case "remove" -> toExitProgram = !removeTask(scanner);
-                case "list" -> listTasks(tasks);
-//                case "exit" -> toExitProgram = true;
+                case "list" -> listTasks();
+                case "exit" -> toExitProgram = true;
             }
         }
-//        exitTaskManager(filename);
+
+        System.out.println(ConsoleColors.RED + "Bye, bye");
 
     }
 
@@ -119,28 +120,11 @@ public class TaskManager {
             return scanner.nextLine().strip();
         }
     }
-//
-//    public static void exitTaskManager(String fileName) {
-//
-//            try (FileWriter fileWriter = new FileWriter(fileName, false)) {
-//                for (String[] taskArray : tasks) {
-//                    for (int j = 0; j < taskArray.length; j++) {
-//                        if (j != (taskArray.length - 1)) {
-//                            fileWriter.append(taskArray[j].strip()).append(", ");
-//                        } else {
-//                            fileWriter.append(taskArray[j].strip()).append("\n");
-//                        }
-//                    }
-//                }
-//            } catch (IOException e) {
-//                System.out.println("Error during saving occurred. Have you entered correct filepath?");
-//
-//            }
-//        System.out.println(ConsoleColors.RED + "Bye, bye");
-//
-//        }
 
-    public static void listTasks(List<Task> tasks) {
+    private void listTasks() {
+
+        List<Task> tasks = loadFile(filename);
+
         if (tasks.isEmpty()) {
             System.out.println("No tasks added yet\n");
         } else {
