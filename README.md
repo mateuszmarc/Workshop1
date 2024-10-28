@@ -88,8 +88,7 @@ It also allows to list all tasks.
    git clone https://github.com/mateuszmarc/Workshop1.git
    ```
 2. Open the project in IntelliJ IDEA.
-3. Set starting parameter as the filepath to the csv file that you will store your task - if the file is not found by app it will be created
-4. Run app in terminal
+3. Run app in terminal
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -118,6 +117,7 @@ or you can terminate the program by entering "exit" command.
 This option will list all tasks with sorted in order when they were added.
 In order to remove the task the user is prompted to enter the number of the task.
 Number entered by the user gets validated against the list number.
+Once user entered correct task number he will be prompted to confirm deletion.
 You can always enter _cancel_ to come back to the main screen or _exit_ to terminate the program.
 
 
@@ -125,9 +125,7 @@ You can always enter _cancel_ to come back to the main screen or _exit_ to termi
 This option will list all added tasks in numerical order beginning from the earliest added.
 
 ### Exit
-This option exits the program and saves all tasks added during program execution to csv file located in under the filepath provided as a starting parameter.
-Every task is saved to the file in following format:
-Task description, due date, significance
+Once user prompts "exit" prompt application gets terminated. 
 
 <!-- LICENSE -->
 
