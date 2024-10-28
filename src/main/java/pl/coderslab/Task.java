@@ -9,11 +9,22 @@ public class Task {
     private LocalDate dueDate;
     private boolean important;
 
+    public Task(String description, LocalDate dueDate, boolean important) {
+        this.description = description;
+        this.dueDate = dueDate;
+        this.important = important;
+    }
+
     public Task(int number, String description, LocalDate dueDate, boolean important) {
         this.number = number;
         this.description = description;
         this.dueDate = dueDate;
         this.important = important;
+    }
+
+
+    public int getNumber() {
+        return number;
     }
 
     @Override

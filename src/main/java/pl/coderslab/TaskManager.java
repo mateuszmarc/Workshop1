@@ -1,5 +1,6 @@
 package pl.coderslab;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,8 +15,7 @@ import java.util.Scanner;
 public class TaskManager {
 
     public static final int MIN_TASK_DESCRIPTION_LENGTH = 5;
-    public static final int DATE_FORMAT_LENGTH = 10;
-    public static final int DATE_ARRAY_LENGTH = 3;
+    public static final int EXIT_RESULT_INTEGER = -1;
 
     private static final String ACTION_PROMPT = ConsoleColors.BLUE + """
             Please select an option:
@@ -32,9 +32,6 @@ public class TaskManager {
 
     private List<Task> tasks = new ArrayList<>();
     private final String filename;
-    private boolean toExitProgram = false;
-    private boolean toExitOperation = false;
-
 
     public TaskManager(String filename) {
         this.filename = filename;
@@ -43,22 +40,30 @@ public class TaskManager {
     public void manageTasks() {
         Scanner scanner = new Scanner(System.in);
         String action;
-        while (!toExitProgram) {
+        int resultFlagInt = 1;
+        while (resultFlagInt != -1) {
+            tasks = TaskManager.loadFile(filename);
             action = getActionFromUser(scanner);
             clearConsoleScreen();
-            switch (action) {
-//                case "add" -> addTask(scanner);
-//                case "remove" -> toExitProgram = !removeTask(scanner);
-                case "list" -> listTasks();
-                case "exit" -> toExitProgram = true;
+
+            if (action.equalsIgnoreCase("add")) {
+                resultFlagInt = addTask(scanner);
+            } else if (action.equalsIgnoreCase("remove")) {
+                resultFlagInt = removeTask(scanner);
+            } else if (action.equalsIgnoreCase("list")) {
+                listTasks();
+            } else if (action.equalsIgnoreCase("exit")) {
+                resultFlagInt = EXIT_RESULT_INTEGER;
+            } else {
+                System.out.println("Incorrect input action. Try again");
             }
+
         }
 
         System.out.println(ConsoleColors.RED + "Bye, bye");
 
     }
 
-    //    Manage file data
     public static List<Task> loadFile(String fileName) {
         File file = new File(fileName);
 
@@ -92,8 +97,8 @@ public class TaskManager {
         return savedTasks;
     }
 
-    //    get operation from user
-    private static String getActionFromUser(Scanner scanner) {
+
+    private String getActionFromUser(Scanner scanner) {
 
         boolean validInput = false;
         String action = "";
@@ -122,9 +127,6 @@ public class TaskManager {
     }
 
     private void listTasks() {
-
-        List<Task> tasks = loadFile(filename);
-
         if (tasks.isEmpty()) {
             System.out.println("No tasks added yet\n");
         } else {
@@ -134,219 +136,181 @@ public class TaskManager {
         }
     }
 
-    //
-//
-//    //    tasks removal
-//    private static String getNumberFromUser(Scanner scanner) {
-//
-//        int taskLength = tasks.length;
-//
-//        while (true) {
-//            listTasks();
-//            String removePrompt = "Please select number to remove(Enter \"" + cancelWord + "\" to go back or \"" + exitWord + "\" to exit): ";
-//            String userInput = getInputFromUser(scanner, removePrompt);
-//            if (userInput.equalsIgnoreCase(cancelWord) || userInput.equalsIgnoreCase(exitWord)) {
-//                return userInput;
-//            }
-//            try {
-//                int number = Integer.parseInt(userInput);
-//                if (number < 0) {
-//                    System.out.println("Incorrect argument passed. Please enter number greater or equal to 0");
-//                } else if (number > taskLength - 1) {
-//                    System.out.println("There is no such task with number " + number + " to remove. Try again");
-//                } else {
-//                    return userInput;
-//                }
-//            } catch (NumberFormatException e) {
-//                System.out.println("Incorrect argument passed. Please enter numeric value: ");
-//            }
-//        }
-//    }
-//
-//    private static boolean removeTask(Scanner scanner) {
-//        if (tasks.length != 0) {
-//            String number = getNumberFromUser(scanner);
-//            if (number.equalsIgnoreCase(cancelWord)) {
-//                return true;
-//            } else if (number.equalsIgnoreCase(exitWord)) {
-//                return false;
-//            }
-//            int taskIndexToRemove = Integer.parseInt(number);
-//            String[][] tasksAfterRemoval = new String[tasks.length - 1][];
-//            String[] taskToRemove = tasks[taskIndexToRemove];
-//            int tasksAfterRemovalIndex = 0;
-//            for (int i = 0; i < tasks.length; i++) {
-//                if (!(tasks[i] == taskToRemove)) {
-//                    tasksAfterRemoval[i] = tasks[tasksAfterRemovalIndex];
-//                    tasksAfterRemovalIndex++;
-//                }
-//            }
-//
-//            tasks = tasksAfterRemoval;
-//            System.out.println("Task nr." + number + " successfully removed!");
-//            return true;
-//        }
-//        listTasks();
-//        return true;
-//    }
-//
-//
-    //    task addition
-//    private static boolean addTask(Scanner scanner) {
-//        String taskDescription = getTaskDescription(scanner);
-//        if (taskDescription.equalsIgnoreCase(cancelWord) || taskDescription.equalsIgnoreCase(exitWord)) {
-//            return checkForCancelOrExit(taskDescription);
-//        }
-//        String dueDate = getDueDate(scanner);
-//        if (dueDate.equalsIgnoreCase(cancelWord) || dueDate.equalsIgnoreCase(exitWord)) {
-//            return checkForCancelOrExit(dueDate);
-//        }
-//        String taskSignificance = getTaskSignificance(scanner);
-//        if (taskSignificance.equalsIgnoreCase(cancelWord) || taskSignificance.equalsIgnoreCase(exitWord)) {
-//            return checkForCancelOrExit(taskSignificance);
-//        }
-//        String[] taskArray = {taskDescription, dueDate, taskSignificance};
-//        String[][] updatedTasks = Arrays.copyOf(tasks, tasks.length + 1);
-//        updatedTasks[updatedTasks.length - 1] = taskArray;
-//        tasks = updatedTasks;
-//        System.out.println(ConsoleColors.GREEN + "Task added successfully!");
-//        return true;
-//    }
-////
-//    private static String getTaskDescription(Scanner scanner) {
-//        while (true) {
-//            String taskDescriptionPrompt = "Enter task description(min " + MIN_TASK_DESCRIPTION_LENGTH + " characters)" +
-//                    " or enter \"" + cancelWord + "\" to cancel or \"" + exitWord + "\" to exit:";
-//            String taskDescription = getInputFromUser(scanner, taskDescriptionPrompt);
-//            if (taskDescription.isBlank()) {
-//                System.out.println("You did not enter any description.");
-//            } else {
-//                if (checkInputLength(taskDescription, MIN_TASK_DESCRIPTION_LENGTH) || taskDescription.equalsIgnoreCase("cancel") || taskDescription.equalsIgnoreCase("exit")) {
-//                    return taskDescription;
-//                } else {
-//                    System.out.println("Your task description is not sufficient.");
-//                }
-//            }
-//        }
-//    }
-//
-//
-//    private static String getTaskSignificance(Scanner scanner) {
-//        while (true) {
-//            String taskSignificancePrompt = "Is your task important: true/false(enter \"" + cancelWord + "\" to cancel or \"" + exitWord + "\" to exit):";
-//            String taskSignificance = getInputFromUser(scanner, taskSignificancePrompt);
-//            if (taskSignificance.equalsIgnoreCase("t") || taskSignificance.equalsIgnoreCase("true")) {
-//                return "true";
-//            } else if (taskSignificance.equalsIgnoreCase("f") || taskSignificance.equalsIgnoreCase("false")) {
-//                return "false";
-//            } else if (taskSignificance.equalsIgnoreCase("cancel") || taskSignificance.equalsIgnoreCase("exit")) {
-//                return taskSignificance.toLowerCase();
-//            } else {
-//                System.out.println("Incorrect input. Try again.");
-//            }
-//        }
-//    }
-//
-//    private static boolean checkInputLength(String input, int minLength) {
-//        return input.split("").length >= minLength;
-//    }
-//
-//    private static boolean checkDateLength(String date, String regex, int dateLength) {
-//        return date.split(regex).length == dateLength;
-//    }
-//
-//    private static String getDueDate(Scanner scanner) {
-//        while (true) {
-//            String dueDatePrompt = "Please add task due date in format YYYY-MM-DD(enter \"" + cancelWord + "\" to cancel or \"" + exitWord + "\" to exit):";
-//            String dueDate = getInputFromUser(scanner, dueDatePrompt).toLowerCase();
-//            if (dueDate.equalsIgnoreCase(cancelWord) || dueDate.equalsIgnoreCase(exitWord)) {
-//                return dueDate;
-//            } else if (checkDateLength(dueDate, "", DATE_FORMAT_LENGTH) && checkDateLength(dueDate, "-", DATE_ARRAY_LENGTH)) {
-//                if (validateDate(dueDate)) {
-//                    return dueDate;
-//                }
-//            } else {
-//                System.out.println("Incorrect due date format. Try again");
-//            }
-//        }
-//    }
-//
-//
-//    private static boolean isLeapYear(int year) {
-//        return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
-//    }
-//
-//
-//    private static boolean validateDate(String dueDate) {
-//        String[] stringArrayFromDate = dueDate.split("-");
-//        int year;
-//        int month;
-//        int day;
-//
-//        int currentYear = LocalDate.now().getYear();
-//        int currentMonth = LocalDate.now().getMonthValue();
-//        int currentDay = LocalDate.now().getDayOfMonth();
-//        String invalidDateInformation = "Entered due date is invalid. Please enter valid date.";
-//        try {
-//            year = Integer.parseInt(stringArrayFromDate[0]);
-//            month = Integer.parseInt(stringArrayFromDate[1]);
-//            day = Integer.parseInt(stringArrayFromDate[2]);
-//        } catch (NumberFormatException nonNumericValue) {
-//            System.out.println(invalidDateInformation);
-//            return false;
-//        }
-//
-//        if ((year > 2055) || (month < 1 || month > 12) || (day < 1 || day > 31)) {
-//            System.out.println(invalidDateInformation);
-//            return false;
-//        } else if (year < currentYear || (year == currentYear && month < currentMonth) || (year == currentYear && month == currentMonth && day < currentDay)) {
-//            System.out.println("You can enter only future due time.");
-//            return false;
-//        } else {
-//            String monthName = switch (month) {
-//                case 1 -> "January";
-//                case 2 -> "February";
-//                case 3 -> "March";
-//                case 4 -> "April";
-//                case 5 -> "May";
-//                case 6 -> "June";
-//                case 7 -> "July";
-//                case 8 -> "August";
-//                case 9 -> "September";
-//                case 10 -> "October";
-//                case 11 -> "November";
-//                case 12 -> "December";
-//                default -> "Invalid";
-//            };
-//
-//            if (isLeapYear(year)) {
-//                if (month == 2 && day > 29) {
-//                    System.out.println("Year " + year + " is a leap year. " + monthName + " has only 29 days");
-//                    return false;
-//                }
-//            } else {
-//                int maxDay = switch (month) {
-//                    case 1, 3, 5, 7, 8, 10, 12 -> 31;
-//                    case 4, 6, 9, 11 -> 30;
-//                    case 2 -> 28;
-//                    default -> 0;
-//                };
-//                if (day > maxDay) {
-//                    System.out.println("Incorrect day of month entered. " + monthName + " has only " + maxDay + " days.");
-//                    return false;
-//                }
-//            }
-//        }
-//        return true;
-//    }
-//
-//    private static boolean checkForCancelOrExit(String input) {
-//        return !input.equalsIgnoreCase(exitWord);
-//    }
-//
-//
-//
-    private static void clearConsoleScreen() {
+    private int removeTask(Scanner scanner) {
+        if (!tasks.isEmpty()) {
+            String number = getNumberFromUser(scanner);
+            if (number.equalsIgnoreCase(cancelWord)) {
+                return 0;
+            } else if (number.equalsIgnoreCase(exitWord)) {
+                return -1;
+            }
+            int taskIndexToRemove = Integer.parseInt(number);
+
+            String confirmation = "";
+            while (!confirmation.equalsIgnoreCase("yes") && !confirmation.equalsIgnoreCase("no")) {
+                System.out.println("Are you sure you want to delete task nr (yes/no): " + taskIndexToRemove);
+                confirmation = scanner.nextLine();
+            }
+
+            if (confirmation.equalsIgnoreCase("yes")) {
+                tasks.removeIf(s -> s.getNumber() == taskIndexToRemove);
+                writeToFile();
+                System.out.println("Task nr." + number + " successfully removed!");
+            }
+
+        }
+        tasks = TaskManager.loadFile(filename);
+        listTasks();
+        return 1;
+    }
+
+    private String getNumberFromUser(Scanner scanner) {
+
+        int taskLength = tasks.size();
+
+        while (true) {
+            listTasks();
+            String removePrompt = "Please select number to remove(Enter \"" + cancelWord + "\" to go back or \"" + exitWord + "\" to exit): ";
+            String userInput = getInputFromUser(scanner, removePrompt);
+            if (userInput.equalsIgnoreCase(cancelWord) || userInput.equalsIgnoreCase(exitWord)) {
+                return userInput;
+            }
+            try {
+                int number = Integer.parseInt(userInput);
+                if (number < 0) {
+                    System.out.println("Incorrect argument passed. Please enter number greater or equal to 0");
+                } else if (number > taskLength - 1) {
+                    System.out.println("There is no such task with number " + number + " to remove. Try again");
+                } else {
+                    return userInput;
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Incorrect argument passed. Please enter numeric value: ");
+            }
+        }
+    }
+
+private int addTask(Scanner scanner) {
+    String taskDescription = getTaskDescription(scanner);
+    if (taskDescription.equalsIgnoreCase(cancelWord) || taskDescription.equalsIgnoreCase(exitWord)) {
+        return checkForCancelOrExit(taskDescription);
+    }
+    String dueDate = getDueDate(scanner);
+    if (dueDate.equalsIgnoreCase(cancelWord) || dueDate.equalsIgnoreCase(exitWord)) {
+        return checkForCancelOrExit(dueDate);
+    }
+    String taskSignificance = getTaskSignificance(scanner);
+    if (taskSignificance.equalsIgnoreCase(cancelWord) || taskSignificance.equalsIgnoreCase(exitWord)) {
+        return checkForCancelOrExit(taskSignificance);
+    }
+
+    Task task = new Task(taskDescription, LocalDate.parse(dueDate), Boolean.parseBoolean(taskSignificance));
+    tasks.add(task);
+    System.out.println(ConsoleColors.GREEN + "Task added successfully!");
+
+    writeToFile();
+    return 1;
+}
+
+    private void writeToFile() {
+        Path path = Path.of(filename);
+
+        try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path)) {
+
+            for (Task task1 : tasks) {
+                bufferedWriter.write(task1.generateCsvData());
+                bufferedWriter.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Something went wrong. Please try again.");
+        }
+    }
+
+    private String getTaskDescription(Scanner scanner) {
+        while (true) {
+            String taskDescriptionPrompt = "Enter task description(min " + MIN_TASK_DESCRIPTION_LENGTH + " characters)" +
+                    " or enter \"" + cancelWord + "\" to cancel or \"" + exitWord + "\" to exit:";
+            String taskDescription = getInputFromUser(scanner, taskDescriptionPrompt);
+            if (taskDescription.isBlank() || taskDescription.isEmpty()) {
+                System.out.println("You did not enter any description.");
+            } else {
+                if (checkInputLength(taskDescription, MIN_TASK_DESCRIPTION_LENGTH) || taskDescription.equalsIgnoreCase("cancel") || taskDescription.equalsIgnoreCase("exit")) {
+                    return taskDescription;
+                } else {
+                    System.out.println("Your task description is not sufficient.");
+                }
+            }
+        }
+    }
+
+    private String getTaskSignificance(Scanner scanner) {
+        while (true) {
+            String taskSignificancePrompt = "Is your task important: true/false(enter \"" + cancelWord + "\" to cancel or \"" + exitWord + "\" to exit):";
+            String taskSignificance = getInputFromUser(scanner, taskSignificancePrompt);
+            if (taskSignificance.equalsIgnoreCase("t") || taskSignificance.equalsIgnoreCase("true")) {
+                return "true";
+            } else if (taskSignificance.equalsIgnoreCase("f") || taskSignificance.equalsIgnoreCase("false")) {
+                return "false";
+            } else if (taskSignificance.equalsIgnoreCase("cancel") || taskSignificance.equalsIgnoreCase("exit")) {
+                return taskSignificance.toLowerCase();
+            } else {
+                System.out.println("Incorrect input. Try again.");
+            }
+        }
+    }
+
+    private boolean checkInputLength(String input, int minLength) {
+        return input.split("").length >= minLength;
+    }
+
+
+    private String getDueDate(Scanner scanner) {
+        while (true) {
+            String dueDatePrompt = "Please add task due date in format YYYY-MM-DD(enter \"" + cancelWord + "\" to cancel or \"" + exitWord + "\" to exit):";
+            String dueDate = getInputFromUser(scanner, dueDatePrompt).toLowerCase().strip();
+            if (dueDate.equalsIgnoreCase(cancelWord) || dueDate.equalsIgnoreCase(exitWord)) {
+                return dueDate;
+            }
+
+            try {
+                LocalDate date = LocalDate.parse(dueDate);
+                if (validateDate(date)) {
+                    return date.toString();
+                }
+            } catch (Exception e) {
+                System.out.println("Incorrect input for due date. Try again");
+            }
+
+        }
+    }
+
+    private boolean validateDate(LocalDate date) {
+        int year = date.getYear();
+        int month = date.getMonthValue();
+        int day = date.getDayOfMonth();
+
+        int currentYear = LocalDate.now().getYear();
+        int currentMonth = LocalDate.now().getMonthValue();
+        int currentDay = LocalDate.now().getDayOfMonth();
+
+        if ((year > 2055)) {
+            System.out.println("You cannot enter due time later than 2055");
+            return false;
+        } else if (year < currentYear || (year == currentYear && month < currentMonth) || (year == currentYear && month == currentMonth && day < currentDay)) {
+            System.out.println("You can enter only future due time.");
+            return false;
+        }
+        return true;
+    }
+
+    private int checkForCancelOrExit(String input) {
+        if (input.equalsIgnoreCase("cancel")) {
+            return 0;
+        }
+        return -1;
+    }
+
+    private void clearConsoleScreen() {
         try {
             if (System.getProperty("os.name").contains("Windows")) {
                 new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
